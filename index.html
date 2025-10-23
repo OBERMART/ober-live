@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Ober Marketing</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        color: white;
+        overflow: hidden;
+        position: relative;
+        background-color: black;
+    }
+
+    /* Background live camera */
+    #background-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+
+    /* Header kiri dan kanan */
+    .top-bar {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+    }
+
+    #logo {
+        font-size: 22px;
+        font-weight: bold;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px 12px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    #logo .li {
+        color: white;
+    }
+    #logo .idi {
+        color: red;
+    }
+    #logo .tv {
+        color: white;
+    }
+
+    /* Icon LIVE berkedip */
+    #live-icon {
+        background-color: red;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+        0% { background-color: red; color: white; }
+        50% { background-color: white; color: red; }
+        100% { background-color: red; color: white; }
+    }
+
+    /* Carousel */
+    .carousel {
+        width: 100%;
+        height: 100px;
+        overflow: hidden;
+        position: relative;
+        margin-top: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .carousel img.active {
+        opacity: 1;
+    }
+
+    /* Promo section */
+    .promo-section {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        align-items: center;
+    }
+
+    #promo-video {
+        width: 60%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .promo-text {
+        width: 35%;
+        perspective: 1000px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .promo-text div {
+        font-size: 16px;
+        font-weight: bold;
+        color: rgb(255, 6, 6);
+        transform: rotateY(0deg);
+        opacity: 0;
+        position: absolute;
+        transition: transform 1s, opacity 1s;
+    }
+
+    .promo-text div.active {
+        opacity: 1;
+        transform: rotateY(360deg);
+    }
+
+    /* Running text */
+    .running-text {
+        background-color: rgb(245, 4, 4);
+        color: black;
+        padding: 8px;
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .running-text marquee {
+        width: 100%;
+    }
+
+    /* Profil marketing dengan efek 3D */
+    .profile {
+        position: fixed;
+        right: 10px;
+        bottom: 70px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(145deg, rgba(40,40,40,0.8), rgba(10,10,10,0.9));
+        padding: 10px 12px;
+        border-radius: 15px;
+        text-align: left;
+        gap: 8px;
+        width: 250px;
+        z-index: 20;
+        box-shadow:
+            5px 5px 15px rgba(0,0,0,0.8),
+            -5px -5px 15px rgba(255,255,255,0.05),
+            inset 0 0 10px rgba(255,0,0,0.2);
+        transform: perspective(600px) rotateY(0deg);
+        transition: transform 0.8s ease;
+        cursor: grab;
+        touch-action: none; /* agar drag lancar di HP */
+    }
+
+    .profile:active {
+        cursor: grabbing;
+    }
+
+    .profile:hover {
+        transform: perspective(600px) rotateY(10deg) scale(1.05);
+        box-shadow:
+            10px 10px 20px rgba(0,0,0,0.9),
+            -10px -10px 20px rgba(255,255,255,0.08),
+            inset 0 0 20px rgba(255,0,0,0.3);
+    }
+
+    .profile img {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        border: 2px solid rgba(255,0,0,0.5);
+    }
+
+    .profile div {
+        font-size: 12px;
+        line-height: 1.3;
+        color: white;
+        text-shadow: 0 0 5px rgba(255,0,0,0.5);
+    }
+
+    /* Camera controls */
+    .camera-controls {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 6px 10px;
+        border-radius: 10px;
+        display: flex;
+        gap: 10px;
+        z-index: 10;
+    }
+
+    .camera-controls button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+    }
+
+    .camera-controls img {
+        width: 25px;
+        height: 25px;
+        filter: invert(1);
+    }
+</style>
+</head>
+<body>
+
+<!-- Background video -->
+<video id="background-video" autoplay muted playsinline></video>
+
+<!-- Top bar: logo kiri & live kanan -->
+<div class="top-bar">
+    <div id="logo"><span class="li">Li</span><span class="idi">di</span><span class="tv">TV</span></div>
+    <div id="live-icon">LIVE</div>
+</div>
+
+<!-- Carousel -->
+<div class="carousel">
+    <img src="1.jpeg" class="active" alt="Promo 1">
+    <img src="2.jpeg" alt="Promo 2">
+    <img src="3.jpeg" alt="Promo 3">
+    <img src="4.jpeg" alt="Promo 4">
+    <img src="5.jpeg" alt="Promo 5">
+    <img src="6.jpeg" alt="Promo 6">
+    <img src="7.jpeg" alt="Promo 7">
+</div>
+
+<!-- Promo section -->
+<section class="promo-section">
+    <video id="promo-video" src="video1.mp4" autoplay loop muted></video>
+    <div class="promo-text">
+        <div class="active">PROMO BUNGA 0%!</div>
+        <div>BELI MOBIL DAPAT ASURANSI!</div>
+        <div>AYO PESAN SEKARANG!</div>
+    </div>
+</section>
+
+<!-- Running text -->
+<div class="running-text">
+    <marquee behavior="scroll" direction="left">
+        KABAR GEMBIRA UNTUK MASYARAKAT SUMATERA UTARA! BELI MOBIL DARI OBER TUMANGGOR S.KOM DAPAT HADIAH & PELAYANAN TERBAIK!
+    </marquee>
+</div>
+
+<!-- Profil marketing bisa digeser -->
+<section class="profile" id="profile-box">
+    <img src="file.jpg" alt="Foto Marketing">
+    <div>
+        <b>Ober Tumanggor, S.Kom</b><br>
+        PT. DIPO INTERNASIONAL PAHALA OTOMOTIF<br>
+        <small>WA: 0823-9331-0575</small>
+    </div>
+</section>
+
+<!-- Kamera control -->
+<div class="camera-controls">
+    <button onclick="toggleCamera()"><img src="putr.png"></button>
+    <button onclick="closeCamera()"><img src="kamera off.png" alt="Close Camera"></button>
+</div>
+
+<script>
+    // === Fitur Kamera ===
+    let currentStream = null;
+    let facingMode = 'environment';
+    const video = document.getElementById('background-video');
+
+    async function startCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: facingMode }
+            });
+            video.srcObject = stream;
+            currentStream = stream;
+        } catch (err) {
+            console.error('Error accessing camera:', err);
+        }
+    }
+
+    function toggleCamera() {
+        facingMode = (facingMode === 'user') ? 'environment' : 'user';
+        startCamera();
+    }
+
+    function closeCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+            currentStream = null;
+        }
+    }
+
+    startCamera();
+
+    // === Carousel ===
+    const images = document.querySelectorAll('.carousel img');
+    let currentImage = 0;
+    setInterval(() => {
+        images[currentImage].classList.remove('active');
+        currentImage = (currentImage + 1) % images.length;
+        images[currentImage].classList.add('active');
+    }, 3000);
+
+    // === Promo text ===
+    const texts = document.querySelectorAll('.promo-text div');
+    let currentText = 0;
+    setInterval(() => {
+        texts[currentText].classList.remove('active');
+        currentText = (currentText + 1) % texts.length;
+        texts[currentText].classList.add('active');
+    }, 3000);
+
+    // === Geser Profil ===
+    const profileBox = document.getElementById('profile-box');
+    let isDragging = false, offsetX, offsetY;
+
+    profileBox.addEventListener('mousedown', startDrag);
+    profileBox.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+
+    function startDrag(e) {
+        isDragging = true;
+        const rect = profileBox.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+        e.preventDefault();
+    }
+
+    function onDrag(e) {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = clientX - offsetX;
+        const y = clientY - offsetY;
+        profileBox.style.left = x + 'px';
+        profileBox.style.top = y + 'px';
+        profileBox.style.right = 'auto';
+        profileBox.style.bottom = 'auto';
+    }
+
+    function endDrag() {
+        isDragging = false;
+    }
+</script>
+
+</body>
+</html>
